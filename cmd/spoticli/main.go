@@ -2,24 +2,17 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
+	"github.com/carlosv5/spoticli/pkg/credentials"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
 var userID = flag.String("user", "", "the Spotify user ID to look up")
-
-// Credentials of Spotify application
-type Credentials struct {
-	Identifier string `json:"SPOTIFY_ID"`
-	Secret     string `json:"SPOTIFY_SECRET"`
-}
 
 func main() {
 	flag.Parse()
@@ -30,7 +23,7 @@ func main() {
 		return
 	}
 
-	credentials := readCredentials()
+	credentials := credentials.Get()
 
 	config := &clientcredentials.Config{
 		ClientID:     credentials.Identifier,
@@ -54,18 +47,4 @@ func main() {
 	fmt.Println("Spotify URI:", string(user.URI))
 	fmt.Println("Endpoint:", user.Endpoint)
 	fmt.Println("Followers:", user.Followers.Count)
-}
-
-func readCredentials() Credentials {
-	jsonFile, err := os.Open("credentials/credentials.json")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Successfully Opened credentials.json")
-	defer jsonFile.Close()
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	var credentials Credentials
-	json.Unmarshal(byteValue, &credentials)
-	return credentials
 }
