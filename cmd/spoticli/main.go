@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/carlosv5/spoticli/pkg/credentials"
 	"github.com/zmb3/spotify"
@@ -14,20 +13,25 @@ import (
 
 var userID = flag.String("user", "", "the Spotify user ID to look up")
 
+func checkFlags() {
+	if *userID == "" {
+		flag.Usage()
+		log.Fatalf("Error: missing user ID")
+	}
+}
+
 func main() {
 	flag.Parse()
+	checkFlags()
 
-	if *userID == "" {
-		fmt.Fprintf(os.Stderr, "Error: missing user ID\n")
-		flag.Usage()
-		return
+	creds, err := credentials.Get()
+	if err != nil {
+		log.Fatalf("Wrong credentials")
 	}
 
-	credentials := credentials.Get()
-
 	config := &clientcredentials.Config{
-		ClientID:     credentials.Identifier,
-		ClientSecret: credentials.Secret,
+		ClientID:     creds.Identifier,
+		ClientSecret: creds.Secret,
 		TokenURL:     spotify.TokenURL,
 	}
 	token, err := config.Token(context.Background())
@@ -38,8 +42,7 @@ func main() {
 	client := spotify.Authenticator{}.NewClient(token)
 	user, err := client.GetUsersPublicProfile(spotify.ID(*userID))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		return
+		log.Fatalf("Error getting the information. Error: %v", err.Error())
 	}
 
 	fmt.Println("User ID:", user.ID)

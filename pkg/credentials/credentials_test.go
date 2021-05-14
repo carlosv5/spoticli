@@ -5,7 +5,10 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	credentials := Get()
+	credentials, err := Get()
+	if err != nil {
+		t.Errorf("Error getting credentials")
+	}
 	if len(credentials.Identifier) == 0 {
 		t.Errorf("No App Identifier read in credentials")
 	}

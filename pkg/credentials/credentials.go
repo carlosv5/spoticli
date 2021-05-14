@@ -2,7 +2,6 @@ package credentials
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -23,16 +22,15 @@ func getCurrentPath() string {
 }
 
 // Get retrieves application credentials
-func Get() Credentials {
-	fmt.Println(getCurrentPath() + credentialsPath)
+func Get() (*Credentials, error) {
+	var credentials Credentials
 	jsonFile, err := os.Open(getCurrentPath() + "/" + credentialsPath)
 	if err != nil {
-		fmt.Println(err)
+		return &credentials, err
 	}
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	var credentials Credentials
 	json.Unmarshal(byteValue, &credentials)
-	return credentials
+	return &credentials, nil
 }
