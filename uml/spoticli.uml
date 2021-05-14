@@ -1,0 +1,20 @@
+@startuml
+package spoticli {
+    namespace cmd {
+        namespace spoticli{
+            class main{
+            }
+        }
+    }
+    namespace pkg {
+        namespace credentials{
+            class Credentials {
+                +Get()
+                -getCurrentPath()
+            }
+        }
+    }
+}
+
+cmd.spoticli.main -down.> pkg.credentials.Credentials
+@enduml
